@@ -82,11 +82,11 @@ constexpr i64 WHITE_SIDE = (i64)4294967295;
 constexpr i64 BLACK_SIDE = (i64)18446744069414584320;
 
 // Directions
-constexpr int ROOK_DIRECTIONS[] = {8, 1, -1, 8};
-constexpr int BISHOP_DIRECTIONS[] = {9, 7, -7, -9};
-constexpr int QUEEN_DIRECTIONS[] = {9, 8, 7, 1, -1, -7, -8, -9};
-constexpr int KING_DIRECTIONS[] = {9, 8, 7, 1, -1, -7, -8, -9};
-constexpr int KNIGHT_DIRECTIONS[] = {17, 15, 10, 6, -6, -10, -15, -17};
+constexpr int ROOK_DIRECTIONS[4] = {8, 1, -1, 8};
+constexpr int BISHOP_DIRECTIONS[4] = {9, 7, -7, -9};
+constexpr int QUEEN_DIRECTIONS[8] = {9, 8, 7, 1, -1, -7, -8, -9};
+constexpr int KING_DIRECTIONS[8] = {9, 8, 7, 1, -1, -7, -8, -9};
+constexpr int KNIGHT_DIRECTIONS[8] = {17, 15, 10, 6, -6, -10, -15, -17};
 
 // To check if castling squares for given color and king are attacked or not
 constexpr i64 GO_THROUGH_SQUARES_WHITE_KING_SIDE_CASTLING  = (i64)112; // Sets 4th, 5th, 6th bit
@@ -270,49 +270,203 @@ constexpr inline int knight_distance(int sq1, int sq2) // moves taken by knight 
     return m + ((m + dx + dy) % 2);
 }
 
+/* Piece Square Tables*/
+
+    // Piece Square Tables for White Pieces
+constexpr float PIECE_SQUARE_TABLE_WHITE_PAWN[64] =
+    {0,  0,  0,  0,  0,  0,  0,  0,
+    0.5,  1,  1, -2, -2,  1,  1,  0.5,
+    0.5, -0.5, -1,  0,  0, -1, -0.5,  0.5,
+    0,  0,  0,  2,  2,  0,  0,  0,
+    0.5,  0.5,  1,  2.5,  2.5,  1,  0.5,  0.5,
+    1,  1,  2,  3,  3,  2,  1,  1,
+    5,  5,  5,  5,  5,  5,  5,  5,
+    0,  0,  0,  0,  0,  0,  0,  0};
+
+constexpr float PIECE_SQUARE_TABLE_WHITE_ROOK[64] =
+    {0,  0,  0,  0.5,  0.5,  0,  0,  0,
+    -0.5,  0,  0,  0,  0,  0,  0, -0.5,
+    -0.5,  0,  0,  0,  0,  0,  0, -0.5,
+    -0.5,  0,  0,  0,  0,  0,  0, -0.5,
+    -0.5,  0,  0,  0,  0,  0,  0, -0.5,
+    -0.5,  0,  0,  0,  0,  0,  0, -0.5,
+    0.5,  1,  1,  1,  1,  1,  1,  0.5,
+    0,  0,  0,  0,  0,  0,  0,  0};
+
+constexpr float PIECE_SQUARE_TABLE_WHITE_KNIGHT[64] =
+    {-5, -4, -3, -3, -3, -3, -4, -5,
+    -4, -2,  0,  0.5,  0.5,  0, -2, -4,
+    -3,  0.5,  1,  1.5,  1.5,  1,  0.5, -3,
+    -3,  0,  1.5,  2,  2,  1.5,  0, -3,
+    -3,  0.5,  1.5,  2,  2,  1.5,  0.5, -3,
+    -3,  0,  1,  1.5,  1.5,  1,  0, -3,
+    -4, -2,  0,  0,  0,  0, -2, -4,
+    -5, -4, -3, -3, -3, -3, -4, -5};
+
+constexpr float PIECE_SQUARE_TABLE_WHITE_BISHOP[64] =
+    {-2, -1, -1, -1, -1, -1, -1, -2,
+    -1,  0.5,  0,  0,  0,  0,  0.5, -1,
+    -1,  1,  1,  1,  1,  1,  1, -1,
+    -1,  0,  1,  1,  1,  1,  0, -1,
+    -1,  0.5,  0.5,  1,  1,  0.5,  0.5, -1,
+    -1,  0,  0.5,  1,  1,  0.5,  0, -1,
+    -1,  0,  0,  0,  0,  0,  0, -1,
+    -2, -1, -1, -1, -1, -1, -1, -2};
+
+constexpr float PIECE_SQUARE_TABLE_WHITE_QUEEN[64] =
+    {-2, -1, -1, -0.5, -0.5, -1, -1, -2,
+    -1,  0,  0,  0,  0,  0,  0, -1,
+    -1,  0,  0.5,  0,  0,  0,  0, -1,
+    -1,  0.5,  0.5,  0.5,  0.5,  0.5,  0, -1,
+    0,  0,  0.5,  0.5,  0.5,  0.5,  0, -0.5,
+    -0.5,  0,  0.5,  0.5,  0.5,  0.5,  0, -0.5,
+    -1,  0,  0,  0,  0,  0,  0, -1,
+    -2, -1, -1, -0.5, -0.5, -1, -1, -2};
+
+constexpr float PIECE_SQUARE_TABLE_WHITE_KING[64] =
+    {2,  3,  1,  0,  0,  1,  3,  2,
+    2,  2,  0,  0,  0,  0,  2,  2,
+    -1, -2, -2, -2, -2, -2, -2, -1,
+    -2, -3, -3, -4, -4, -3, -3, -2,
+    -3, -4, -4, -5, -5, -4, -4, -3,
+    -3, -4, -4, -5, -5, -4, -4, -3,
+    -3, -4, -4, -5, -5, -4, -4, -3,
+    -3, -4, -4, -5, -5, -4, -4, -3};
+
+constexpr float PIECE_SQUARE_TABLE_WHITE_KING_ENDGAME[64] =
+    {-5, -3, -3, -3, -3, -3, -3, -5,
+    -3, -3,  0,  0,  0,  0, -3, -3,
+    -3, -1,  2,  3,  3,  2, -1, -3,
+    -3, -1,  3,  4,  4,  3, -1, -3,
+    -3, -1,  3,  4,  4,  3, -1, -3,
+    -3, -1,  2,  3,  3,  2, -1, -3,
+    -3, -2, -1,  0,  0, -1, -2, -3,
+    -5, -4, -3, -2, -2, -3, -4, -5};
+
+    // Piece Square Tables for Black Pieces
+constexpr float PIECE_SQUARE_TABLE_BLACK_PAWN[64] =
+    {0,  0,  0,  0,  0,  0,  0,  0,
+    5,  5,  5,  5,  5,  5,  5,  5,
+    1,  1,  2,  3,  3,  2,  1,  1,
+    0.5,  0.5,  1,  2.5,  2.5,  1,  0.5,  0.5,
+    0,  0,  0,  2,  2,  0,  0,  0,
+    0.5, -0.5, -1,  0,  0, -1, -0.5,  0.5,
+    0.5,  1,  1, -2, -2,  1,  1,  0.5,
+    0,  0,  0,  0,  0,  0,  0,  0};
+
+constexpr float PIECE_SQUARE_TABLE_BLACK_ROOK[64] =
+    {0,  0,  0,  0,  0,  0,  0,  0,
+    0.5,  1,  1,  1,  1,  1,  1,  0.5,
+    -0.5,  0,  0,  0,  0,  0,  0, -0.5,
+    -0.5,  0,  0,  0,  0,  0,  0, -0.5,
+    -0.5,  0,  0,  0,  0,  0,  0, -0.5,
+    -0.5,  0,  0,  0,  0,  0,  0, -0.5,
+    -0.5,  0,  0,  0,  0,  0,  0, -0.5,
+    0,  0,  0,  0.5,  0.5,  0,  0,  0};
+
+constexpr float PIECE_SQUARE_TABLE_BLACK_KNIGHT[64] =
+    {-5, -4, -3, -3, -3, -3, -4, -5,
+    -4, -2,  0,  0,  0,  0, -2, -4,
+    -3,  0,  1,  1.5,  1.5,  1,  0, -3,
+    -3,  0.5,  1.5,  2,  2,  1.5,  0.5, -3,
+    -3,  0,  1.5,  2,  2,  1.5,  0, -3,
+    -3,  0.5,  1,  1.5,  1.5,  1,  0.5, -3,
+    -4, -2,  0,  0.5,  0.5,  0, -2, -4,
+    -5, -4, -3, -3, -3, -3, -4, -5};
+
+constexpr float PIECE_SQUARE_TABLE_BLACK_BISHOP[64] =
+    {-2, -1, -1, -1, -1, -1, -1, -2,
+    -1,  0,  0,  0,  0,  0,  0, -1,
+    -1,  0,  0.5,  1,  1,  0.5,  0, -1,
+    -1,  0.5,  0.5,  1,  1,  0.5,  0.5, -1,
+    -1,  0,  1,  1,  1,  1,  0, -1,
+    -1,  1,  1,  1,  1,  1,  1, -1,
+    -1,  0.5,  0,  0,  0,  0,  0.5, -1,
+    -2, -1, -1, -1, -1, -1, -1, -2};
+
+constexpr float PIECE_SQUARE_TABLE_BLACK_QUEEN[64] =
+    {-2, -1, -1, -0.5, -0.5, -1, -1, -2,
+    -1,  0,  0,  0,  0,  0,  0, -1,
+    -1,  0,  0.5,  0.5,  0.5,  0.5,  0, -1,
+    -0.5,  0,  0.5,  0.5,  0.5,  0.5,  0, -0.5,
+    0,  0,  0.5,  0.5,  0.5,  0.5,  0, -0.5,
+    -1,  0.5,  0.5,  0.5,  0.5,  0.5,  0, -1,
+    -1,  0,  0.5,  0,  0,  0,  0, -1,
+    -2, -1, -1, -0.5, -0.5, -1, -1, -2};
+
+constexpr float PIECE_SQUARE_TABLE_BLACK_KING[64] =
+    {-3, -4, -4, -5, -5, -4, -4, -3,
+    -3, -4, -4, -5, -5, -4, -4, -3,
+    -3, -4, -4, -5, -5, -4, -4, -3,
+    -3, -4, -4, -5, -5, -4, -4, -3,
+    -2, -3, -3, -4, -4, -3, -3, -2,
+    -1, -2, -2, -2, -2, -2, -2, -1,
+    2,  2,  0,  0,  0,  0,  2,  2,
+    2,  3,  1,  0,  0,  1,  3,  2};
+
+constexpr float PIECE_SQUARE_TABLE_BLACK_KING_ENDGAME[64] =
+    {-5, -4, -3, -2, -2, -3, -4, -5,
+    -3, -2, -1,  0,  0, -1, -2, -3,
+    -3, -1,  2,  3,  3,  2, -1, -3,
+    -3, -1,  3,  4,  4,  3, -1, -3,
+    -3, -1,  3,  4,  4,  3, -1, -3,
+    -3, -1,  2,  3,  3,  2, -1, -3,
+    -3, -3,  0,  0,  0,  0, -3, -3,
+    -5, -3, -3, -3, -3, -3, -3, -5};
+
+/***************************************** */
+
+/* Piece Values */
+constexpr int PAWN_VALUE = 1;
+constexpr int ROOK_VALUE = 5;
+constexpr int KNIGHT_VALUE = 3;
+constexpr int BISHOP_VALUE = 3;
+constexpr int QUEEN_VALUE = 9;
+constexpr int KING_VALUE = 120; // More Than 2 Rooks + 2 Knights + 2 Bishops + 9 Queens
+
 struct Bitboard
 {
     /* Location Bitboards for all pieces */
-    i64 white_pawns = 0;            // bitboard for all white pawns location combined in a single 64 bit integer
+    i64 white_pawns = (i64)0;            // bitboard for all white pawns location combined in a single 64 bit integer
     std::vector<i64> white_rooks;   // vector storing all location bitboards for individual white rooks
     std::vector<i64> white_knights; // vector storing all location bitboards for individual white knights
     std::vector<i64> white_bishops; // vector storing all location bitboards for individual white bishops
     std::vector<i64> white_queens;  // vector storing all location bitboards for individual white queens
-    i64 white_king = 0;
+    i64 white_king = (i64)0;
 
-    i64 black_pawns = 0;            // // bitboard for all black pawns location combined in a single 64 bit integer
+    i64 black_pawns = (i64)0;            // // bitboard for all black pawns location combined in a single 64 bit integer
     std::vector<i64> black_rooks;   // vector storing all location bitboards for individual black rooks
     std::vector<i64> black_knights; // vector storing all location bitboards for individual black knights
     std::vector<i64> black_bishops; // vector storing all location bitboards for individual black bishops
     std::vector<i64> black_queens;  // vector storing all location bitboards for individual black queens
-    i64 black_king = 0;
+    i64 black_king = (i64)0;
 
-    i64 white_pieces_all = 0;  // All white_bitboards combined
-    i64 black_pieces_all = 0;  // All black_bitboards combined
+    i64 white_pieces_all = (i64)0;  // All white_bitboards combined
+    i64 black_pieces_all = (i64)0;  // All black_bitboards combined
 
-    i64 all_pieces = 0; // All pieces bitboards combined
+    i64 all_pieces = (i64)0; // All pieces bitboards combined
 
     /* Attack Bitboards for all pieces */
-    i64 attack_white_pawns = 0;
-    i64 attack_white_king = 0;
+    i64 attack_white_pawns = (i64)0;
+    i64 attack_white_king = (i64)0;
     std::vector<i64> attack_white_rooks;
     std::vector<i64> attack_white_knights;
     std::vector<i64> attack_white_bishops;
     std::vector<i64> attack_white_queens;
 
-    i64 attack_black_pawns = 0;
-    i64 attack_black_king = 0;
+    i64 attack_black_pawns = (i64)0;
+    i64 attack_black_king = (i64)0;
     std::vector<i64> attack_black_rooks;
     std::vector<i64> attack_black_knights;
     std::vector<i64> attack_black_bishops;
     std::vector<i64> attack_black_queens;
 
-    i64 attack_white_all = 0;
-    i64 attack_black_all = 0;
+    i64 attack_white_all = (i64)0;
+    i64 attack_black_all = (i64)0;
 
     /* Total Material */
-    i64 total_white_material = 0;
-    i64 total_black_material = 0;
+    int total_white_material = 0;
+    int total_black_material = 0;
 
     bool castling_rights[4] = {true, true, true, true};
     short int enpassant_square = -1; // -1 if no sqaure elligible for enpassant else in range of 0 to 63
